@@ -2,7 +2,7 @@ import json
 import logging
 from contextlib import asynccontextmanager
 from typing import Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -70,6 +70,17 @@ app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
+
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.api.v1.voice import twilio_incoming_call
+
+@app.api_route("/twilio", methods=["GET", "POST"], include_in_schema=False)
+@app.api_route("/webhook", methods=["GET", "POST"], include_in_schema=False)
+@app.api_route("/voice", methods=["GET", "POST"], include_in_schema=False)
+async def root_twilio_alias(request: Request, db: Session = Depends(get_db)):
+    return await twilio_incoming_call(request, db)
+
 
 @app.get("/api/info")
 def api_info():

@@ -235,16 +235,22 @@ def get_session_detail(session_id: str, db: Session = Depends(get_db)):
 # TWILIO TELEPHONY INTEGRATION (Real IVR Webhooks & Media-Stream)
 # =====================================================================
 
-@router.post("/twilio/incoming", summary="Twilio Incoming Call Webhook")
+@router.api_route("/twilio/incoming", methods=["GET", "POST"], summary="Twilio Incoming Call Webhook")
+@router.api_route("/twilio/incoming/", methods=["GET", "POST"], include_in_schema=False)
 async def twilio_incoming_call(
     request: Request,
     db: Session = Depends(get_db),
 ):
     """
     Handles live inbound phone calls to the Twilio national legal aid helpline.
+    Supports both POST and GET to accommodate Twilio console testers, webhooks, and PSTN.
     Initializes backend session and speaks RELAY_CONFIRM + Q0 in natural Bangla.
     """
-    form_data = await request.form()
+    if request.method == "POST":
+        form_data = await request.form()
+    else:
+        form_data = request.query_params
+
     call_sid = form_data.get("CallSid") or f"tw_{uuid.uuid4().hex[:12]}"
     caller_phone = form_data.get("From", "+8801700000000")
 
@@ -261,13 +267,19 @@ async def twilio_incoming_call(
     q0_prompt = FIXED_QUESTIONS["Q0"]["bn"]
     initial_speech = f"{greeting} {q0_prompt}"
 
-    gather_url = f"{settings.API_V1_PREFIX}/voice/twilio/step?session_id={session.session_id}&amp;question_id=Q0"
+    # Generate full absolute URL to avoid any relative path ambiguity in Twilio Voice
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host") or "dlas-digital-legal-aid.onrender.com"
+    proto = request.headers.get("x-forwarded-proto") or "https"
+    base_url = f"{proto}://{host}".rstrip("/")
+    gather_url = f"{base_url}{settings.API_V1_PREFIX}/voice/twilio/step?session_id={session.session_id}&amp;question_id=Q0"
+
     twiml_xml = generate_twiml(say_text=initial_speech, gather_action=gather_url)
 
     return Response(content=twiml_xml, media_type="application/xml")
 
 
-@router.post("/twilio/step", summary="Twilio Speech Gather Callback")
+@router.api_route("/twilio/step", methods=["GET", "POST"], summary="Twilio Speech Gather Callback")
+@router.api_route("/twilio/step/", methods=["GET", "POST"], include_in_schema=False)
 async def twilio_step_callback(
     request: Request,
     session_id: str,
@@ -278,9 +290,17 @@ async def twilio_step_callback(
     Processes speech gathered by Twilio IVR for the given intake question.
     Immediately saves answer, validates safety flags, and returns next question TwiML.
     """
-    form_data = await request.form()
+    if request.method == "POST":
+        form_data = await request.form()
+    else:
+        form_data = request.query_params
+
     speech_result = form_data.get("SpeechResult")
     confidence_str = form_data.get("Confidence", "0.9")
+
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host") or "dlas-digital-legal-aid.onrender.com"
+    proto = request.headers.get("x-forwarded-proto") or "https"
+    base_url = f"{proto}://{host}".rstrip("/")
 
     try:
         confidence = float(confidence_str)
@@ -291,7 +311,7 @@ async def twilio_step_callback(
         # Fallback if speech was not caught
         current_meta = FIXED_QUESTIONS.get(question_id, {})
         repeat_text = f"আমরা আপনার কথা বুঝতে পারিনি। {current_meta.get('bn', 'অনুগ্রহ করে আবার বলুন।')}"
-        gather_url = f"{settings.API_V1_PREFIX}/voice/twilio/step?session_id={session_id}&amp;question_id={question_id}"
+        gather_url = f"{base_url}{settings.API_V1_PREFIX}/voice/twilio/step?session_id={session_id}&amp;question_id={question_id}"
         twiml_xml = generate_twiml(say_text=repeat_text, gather_action=gather_url)
         return Response(content=twiml_xml, media_type="application/xml")
 
@@ -318,13 +338,14 @@ async def twilio_step_callback(
 
     next_step = step_result.get("next_step")
     next_prompt = FIXED_QUESTIONS.get(next_step, {}).get("bn", "পরবর্তী তথ্যটি বলুন।")
-    next_gather_url = f"{settings.API_V1_PREFIX}/voice/twilio/step?session_id={session_id}&amp;question_id={next_step}"
+    next_gather_url = f"{base_url}{settings.API_V1_PREFIX}/voice/twilio/step?session_id={session_id}&amp;question_id={next_step}"
     twiml_xml = generate_twiml(say_text=next_prompt, gather_action=next_gather_url)
 
     return Response(content=twiml_xml, media_type="application/xml")
 
 
-@router.post("/twilio/status", summary="Twilio Call Status Callback")
+@router.api_route("/twilio/status", methods=["GET", "POST"], summary="Twilio Call Status Callback")
+@router.api_route("/twilio/status/", methods=["GET", "POST"], include_in_schema=False)
 async def twilio_call_status(
     request: Request,
     db: Session = Depends(get_db),
@@ -333,7 +354,10 @@ async def twilio_call_status(
     Handles Twilio CallStatus changes (completed, busy, failed, no-answer).
     Ensures safe finalization of any lingering session.
     """
-    form_data = await request.form()
+    if request.method == "POST":
+        form_data = await request.form()
+    else:
+        form_data = request.query_params
     call_sid = form_data.get("CallSid")
     call_status = form_data.get("CallStatus")
     call_duration = form_data.get("CallDuration")
