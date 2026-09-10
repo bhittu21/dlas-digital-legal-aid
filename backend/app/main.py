@@ -64,8 +64,11 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
-@app.get("/")
-def root():
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+@app.get("/api/info")
+def api_info():
     return {
         "service": settings.PROJECT_NAME,
         "version": "1.0.0",
@@ -97,3 +100,10 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.warning(f"WebSocket connection error: {e}")
         manager.disconnect(websocket)
+
+
+# Mount production frontend static files if present (must be after all API and WS routes)
+src_dir = Path(__file__).resolve().parent.parent.parent / "src"
+if src_dir.exists():
+    app.mount("/", StaticFiles(directory=str(src_dir), html=True), name="frontend")
+

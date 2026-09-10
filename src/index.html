@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>ডিজিটাল লিগ্যাল এইড সিস্টেম | Digital Legal Aid System (DLAS)</title>
+  <meta name="description" content="জাতীয় আইনগত সহায়তা প্রদান সংস্থা (এনএলএএসও) এর আওতায় বাংলাদেশ ডিজিটাল লিগ্যাল এইড সিস্টেম।" />
+  <meta name="theme-color" content="#065f46" />
+
+  <!-- Google Fonts: Hind Siliguri (Bangla) & Inter (English) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="appRoot">
+    <!-- Initial Loading State -->
+    <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Hind Siliguri', sans-serif;">
+      <div style="width: 44px; height: 44px; border: 3px solid #e2e8f0; border-top-color: #065f46; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+      <p style="margin-top: 1rem; color: #475569; font-weight: 600;">ডিজিটাল লিগ্যাল এইড সিস্টেম লোড হচ্ছে...</p>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <!-- Core Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/websocket.js"></script>
+  <script src="js/utils.js"></script>
+
+  <!-- View Components -->
+  <script src="js/views/login.js"></script>
+  <script src="js/views/dashboard.js"></script>
+  <script src="js/views/caseQueue.js"></script>
+  <script src="js/views/caseDetail.js"></script>
+  <script src="js/views/verificationModal.js"></script>
+  <script src="js/views/lawyerQueue.js"></script>
+  <script src="js/views/notifications.js"></script>
+  <script src="js/views/auditLogs.js"></script>
+  <script src="js/views/health.js"></script>
+  <script src="js/views/settings.js"></script>
+
+  <!-- Main App Controller -->
+  <script src="js/app.js"></script>
+</body>
+</html>
