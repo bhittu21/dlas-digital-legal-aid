@@ -1,7 +1,6 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "public": false,
   "rewrites": [
     {
       "source": "/api/v1/:path*",
