@@ -13,110 +13,159 @@ def seed_database(db: Session):
     and audit histories into the authoritative database.
     Idempotent: skips if data is already present.
     """
-    if db.query(User).count() > 0:
-        return
+    def ensure_user(
+        email: str,
+        password_raw: str,
+        full_name: str,
+        full_name_bn: str,
+        role: UserRole,
+        phone_number: str = None,
+        district: str = "Dhaka",
+        specialization: str = None,
+    ) -> User:
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            user = User(
+                email=email,
+                hashed_password=get_password_hash(password_raw),
+                full_name=full_name,
+                full_name_bn=full_name_bn,
+                role=role,
+                phone_number=phone_number,
+                district=district,
+                specialization=specialization,
+                is_active=True,
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        return user
 
-    # 1. Create Core Users
-    dlao_dhaka = User(
+    # 1. Standard Judge & Evaluator Accounts
+    officer_default = ensure_user(
+        email="officer@dlas.gov.bd",
+        password_raw="officer123",
+        full_name="Mahmudur Rahman, DLAO",
+        full_name_bn="মাহমুদুর রহমান (ডিএলএও)",
+        role=UserRole.DLAO_OFFICER,
+        phone_number="+8801711000000",
+        district="Dhaka",
+        specialization="District Legal Aid Administration",
+    )
+
+    lawyer_default = ensure_user(
+        email="lawyer@dlas.gov.bd",
+        password_raw="lawyer123",
+        full_name="Adv. Nazmul Huda",
+        full_name_bn="অ্যাডভোকেট নাজমুল হুদা",
+        role=UserRole.PANEL_LAWYER,
+        phone_number="+8801811000000",
+        district="Dhaka",
+        specialization="Land & Property Disputes",
+    )
+
+    admin_default = ensure_user(
+        email="admin@dlas.gov.bd",
+        password_raw="admin123",
+        full_name="System Administrator",
+        full_name_bn="সিস্টেম অ্যাডমিনিস্ট্রেটর",
+        role=UserRole.DLAO_OFFICER,
+        phone_number="+8801700000000",
+        district="National",
+        specialization="Platform Operations & Audit",
+    )
+
+    # 2. Regional Legal Officers & Panel Lawyers
+    dlao_dhaka = ensure_user(
         email="dlao.dhaka@dlas.gov.bd",
-        hashed_password=get_password_hash("DlaoPass2026!"),
+        password_raw="DlaoPass2026!",
         full_name="Mahmudur Rahman, DLAO",
         full_name_bn="মাহমুদুর রহমান (ডিএলএও)",
         role=UserRole.DLAO_OFFICER,
         phone_number="+8801711000001",
         district="Dhaka",
         specialization="Judicial & Legal Aid Administration",
-        is_active=True,
     )
 
-    dlao_ctg = User(
+    dlao_ctg = ensure_user(
         email="dlao.ctg@dlas.gov.bd",
-        hashed_password=get_password_hash("DlaoPass2026!"),
+        password_raw="DlaoPass2026!",
         full_name="Fatema Zohra, DLAO",
         full_name_bn="ফাতেমা জোহরা (ডিএলএও)",
         role=UserRole.DLAO_OFFICER,
         phone_number="+8801711000002",
         district="Chittagong",
         specialization="Family & Civil Mediation",
-        is_active=True,
     )
 
-    lawyer_land = User(
+    lawyer_land = ensure_user(
         email="lawyer.nazmul@dlas.gov.bd",
-        hashed_password=get_password_hash("LawyerPass2026!"),
+        password_raw="LawyerPass2026!",
         full_name="Adv. Nazmul Huda",
         full_name_bn="অ্যাডভোকেট নাজমুল হুদা",
         role=UserRole.PANEL_LAWYER,
         phone_number="+8801811000003",
         district="Dhaka",
         specialization="Land & Property Disputes",
-        is_active=True,
     )
 
-    lawyer_family = User(
+    lawyer_family = ensure_user(
         email="lawyer.farhana@dlas.gov.bd",
-        hashed_password=get_password_hash("LawyerPass2026!"),
+        password_raw="LawyerPass2026!",
         full_name="Adv. Farhana Yasmin",
         full_name_bn="অ্যাডভোকেট ফারহানা ইয়াসমিন",
         role=UserRole.PANEL_LAWYER,
         phone_number="+8801811000004",
         district="Chittagong",
         specialization="Family Law & Domestic Violence",
-        is_active=True,
     )
 
-    lawyer_labour = User(
+    lawyer_labour = ensure_user(
         email="lawyer.kamrul@dlas.gov.bd",
-        hashed_password=get_password_hash("LawyerPass2026!"),
+        password_raw="LawyerPass2026!",
         full_name="Adv. Kamrul Hasan",
         full_name_bn="অ্যাডভোকেট কামরুল হাসান",
         role=UserRole.PANEL_LAWYER,
         phone_number="+8801811000005",
         district="Dhaka",
         specialization="Labour & Industrial Relations",
-        is_active=True,
     )
 
-    lawyer_criminal = User(
+    lawyer_criminal = ensure_user(
         email="lawyer.tariqul@dlas.gov.bd",
-        hashed_password=get_password_hash("LawyerPass2026!"),
+        password_raw="LawyerPass2026!",
         full_name="Adv. Tariqul Islam",
         full_name_bn="অ্যাডভোকেট তরিকুল ইসলাম",
         role=UserRole.PANEL_LAWYER,
         phone_number="+8801811000006",
         district="Rajshahi",
         specialization="Indigent Criminal Defense & Bail",
-        is_active=True,
     )
 
-    system_ai = User(
+    system_ai = ensure_user(
         email="ai.system@dlas.internal",
-        hashed_password=get_password_hash("SystemAIPass2026!"),
+        password_raw="SystemAIPass2026!",
         full_name="DLAS Gemini Intake Engine",
         full_name_bn="ডিএলএএস এআই ইনটেক ইঞ্জিন",
         role=UserRole.SYSTEM_AI,
         phone_number=None,
         district="National",
         specialization="AI Entity Extraction & Triage",
-        is_active=True,
     )
 
-    citizen_user = User(
+    citizen_user = ensure_user(
         email="citizen.shahnaz@gmail.com",
-        hashed_password=get_password_hash("CitizenPass2026!"),
+        password_raw="CitizenPass2026!",
         full_name="Shahnaz Akter",
         full_name_bn="শাহনাজ আক্তার",
         role=UserRole.APPLICANT,
         phone_number="+8801911000007",
         district="Dhaka",
-        is_active=True,
     )
 
-    db.add_all([
-        dlao_dhaka, dlao_ctg, lawyer_land, lawyer_family,
-        lawyer_labour, lawyer_criminal, system_ai, citizen_user
-    ])
-    db.commit()
+    # 3. Check if Cases already seeded
+    if db.query(Case).count() > 0:
+        return
 
     # 2. Seed Fictional Cases
     cases_data = [

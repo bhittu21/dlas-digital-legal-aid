@@ -32,7 +32,7 @@ function renderAppLayout() {
   const appRoot = document.getElementById("appRoot");
   const state = window.dlasStore.getState();
   const lang = state.language;
-  const user = state.currentUser;
+  const user = state.currentUser || {};
   const isAuth = !!state.authToken;
 
   if (!isAuth) {

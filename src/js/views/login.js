@@ -56,11 +56,14 @@ function renderLoginView(container, lang) {
         <div class="quick-login-section">
           <p class="quick-title">${window.t("quick_login_hint")}</p>
           <div class="quick-pills">
+            <button type="button" class="quick-btn" data-email="officer@dlas.gov.bd" data-pass="officer123">
+              <span class="role-badge badge-dlao">DLAO</span> Officer (officer123)
+            </button>
             <button type="button" class="quick-btn" data-email="dlao.dhaka@dlas.gov.bd" data-pass="DlaoPass2026!">
               <span class="role-badge badge-dlao">DLAO</span> ${window.t("role_dlao_dhaka")}
             </button>
-            <button type="button" class="quick-btn" data-email="dlao.ctg@dlas.gov.bd" data-pass="DlaoPass2026!">
-              <span class="role-badge badge-dlao">DLAO</span> ${window.t("role_dlao_ctg")}
+            <button type="button" class="quick-btn" data-email="lawyer@dlas.gov.bd" data-pass="lawyer123">
+              <span class="role-badge badge-advocate">ADV</span> Lawyer (lawyer123)
             </button>
             <button type="button" class="quick-btn" data-email="lawyer.nazmul@dlas.gov.bd" data-pass="LawyerPass2026!">
               <span class="role-badge badge-advocate">ADV</span> ${window.t("role_lawyer_nazmul")}
@@ -106,8 +109,29 @@ function renderLoginView(container, lang) {
 
       // Connect WebSocket upon login
       window.dlasRealtime.connect();
+
+      // Immediately fetch initial authoritative datasets
+      try {
+        const casesRes = await window.dlasApi.listCases();
+        if (casesRes && casesRes.items) {
+          window.dlasStore.setCases(casesRes.items, casesRes.total, casesRes.page);
+        }
+        const notifs = await window.dlasApi.listNotifications();
+        if (notifs) {
+          window.dlasStore.setNotifications(notifs);
+        }
+      } catch (fetchErr) {
+        console.warn("Post-login data fetch warning:", fetchErr);
+      }
     } catch (err) {
-      errorDiv.textContent = err.message || window.t("login_error");
+      let errorMsg = err.message || window.t("login_error");
+      const lower = errorMsg.toLowerCase();
+      if (lower.includes("failed to fetch") || lower.includes("networkerror") || lower.includes("cors")) {
+        errorMsg = lang === "bn"
+          ? "ক্লাউড সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি। রেন্ডার ক্লাউড ব্যাকএন্ড চালু হতে ২০-৩০ সেকেন্ড সময় লাগতে পারে, অনুগ্রহ করে পুনরায় চেষ্টা করুন।"
+          : "Could not connect to the cloud backend. Render instances may take 20-30 seconds to wake up from cold standby. Please wait a moment and retry.";
+      }
+      errorDiv.textContent = errorMsg;
       errorDiv.style.display = "block";
     } finally {
       submitBtn.disabled = false;

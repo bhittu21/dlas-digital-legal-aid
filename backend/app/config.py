@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # CORS
-    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,https://dlas-legal-aid.vercel.app"
+    # CORS: Allow all Vercel domains, Render, local dev, and configured origins
+    CORS_ORIGINS: str = "*"
 
     # Security & Auth (Backend Only)
     SECRET_KEY: str = "dlas_dev_jwt_secret_key_change_in_production_f928e4708a32"
@@ -50,6 +50,8 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> List[str]:
+        if not self.CORS_ORIGINS or self.CORS_ORIGINS.strip() == "*":
+            return ["*"]
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
     @field_validator("DATABASE_URL", mode="before")
