@@ -41,7 +41,8 @@ class CaseUpdate(BaseModel):
 
 
 class CaseVerifyRequest(BaseModel):
-    notes: str = Field(..., min_length=3, description="Mandatory DLAO verification assessment")
+    action: Optional[str] = Field(default="VERIFIED", description="VERIFIED, NEEDS_INFORMATION, REJECTED")
+    notes: Optional[str] = Field(default="Verified by DLAO", description="DLAO verification assessment")
     priority: Optional[str] = None
     route_to_panel_queue: bool = True
 

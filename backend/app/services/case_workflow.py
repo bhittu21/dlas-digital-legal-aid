@@ -6,6 +6,7 @@ from sqlalchemy import func
 
 from app.models.case import Case, CaseStatus, CasePriority, LegalCategory
 from app.models.user import User, UserRole
+from app.models.notification import Notification, NotificationType
 from app.models.audit import AuditAction
 from app.schemas.case import (
     CaseCreate,
@@ -244,6 +245,24 @@ class CaseWorkflowService:
         if case.archived:
             raise HTTPException(status_code=400, detail="Cannot verify an archived case.")
 
+        # Route alternate actions if submitted to verify endpoint
+        if getattr(req, "action", None) == "NEEDS_INFORMATION":
+            return await CaseWorkflowService.request_information(
+                db=db,
+                case_id=case_id,
+                req=CaseRequestInfoRequest(info_needed=req.notes or "Additional information requested"),
+                actor=actor,
+                ip_address=ip_address,
+            )
+        elif getattr(req, "action", None) == "REJECTED":
+            return await CaseWorkflowService.reject_case(
+                db=db,
+                case_id=case_id,
+                req=CaseRejectRequest(reason=req.notes or "Rejected upon judicial review"),
+                actor=actor,
+                ip_address=ip_address,
+            )
+
         if case.status not in [CaseStatus.PENDING_HUMAN_REVIEW, CaseStatus.NEEDS_INFORMATION, CaseStatus.VERIFIED]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -278,6 +297,35 @@ class CaseWorkflowService:
             ip_address=ip_address,
             commit=True,
         )
+
+        # Notify panel lawyer when case enters panel lawyer queue
+        if target_status == CaseStatus.PANEL_LAWYER_QUEUE:
+            lawyer = db.query(User).filter(User.role == UserRole.PANEL_LAWYER).first()
+            if lawyer:
+                existing_notif = db.query(Notification).filter(
+                    Notification.case_id == case.id,
+                    Notification.user_id == lawyer.id,
+                ).first()
+                if not existing_notif:
+                    create_notification(
+                        db=db,
+                        user_id=lawyer.id,
+                        case_id=case.id,
+                        title=f"New Case Verified & Added to Panel Queue: {case.tracking_id}",
+                        title_bn=f"নতুন মামলা যাচাই সম্পন্ন ও প্যানেল আইনজীবী কিউতে যুক্ত: {case.tracking_id}",
+                        message=f"Case {case.tracking_id} ({case.applicant_name}) is now verified and available in the panel lawyer queue.",
+                        message_bn=f"মামলা {case.tracking_id} ({case.applicant_name}) এখন প্যানেল আইনজীবী কিউতে পর্যালোচনার জন্য প্রস্তুত।",
+                        notification_type=NotificationType.STATUS_CHANGED,
+                        commit=True,
+                    )
+                    await manager.broadcast_event(
+                        event_type=RealtimeEventType.LAWYER_NOTIFICATION_CREATED,
+                        payload={
+                            "case_id": case.id,
+                            "tracking_id": case.tracking_id,
+                            "lawyer_id": lawyer.id,
+                        },
+                    )
 
         await manager.broadcast_event(
             event_type=RealtimeEventType.CASE_VERIFIED,

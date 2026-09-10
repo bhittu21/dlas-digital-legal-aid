@@ -13,6 +13,7 @@ const TRANSLATIONS = {
 
     // Navigation
     nav_dashboard: "Dashboard Overview",
+    nav_voice_intake: "Voice Helpline (Telephony)",
     nav_dbla_intake: "DBLA Online Intake",
     nav_queue: "Live Case Queue",
     nav_lawyer_queue: "Panel Lawyer Queue",
@@ -21,6 +22,21 @@ const TRANSLATIONS = {
     nav_notifications: "Notifications",
     nav_settings: "Settings & Language",
     nav_logout: "Sign Out",
+
+    // Voice Intake Simulator
+    voice_title: "National Legal Aid Voice Intake Helpline",
+    voice_subtitle: "Simulated telephone intake with incremental persistence, Gemini safety triage, and Bangla SpeechSynthesis.",
+    voice_start_call: "Simulate Inbound Call (16430)",
+    voice_end_call: "End Intake Call",
+    voice_speaking_now: "Helpline System Speaking (বাংলা)...",
+    voice_caller_turn: "Caller's Turn to Speak",
+    voice_btn_speak_mic: "Speak via Microphone",
+    voice_btn_sample_safe: "Send Safe Sample Answer",
+    voice_btn_sample_danger: "Send High-Risk/Danger Sample",
+    voice_answers_feed: "Live Authoritative Turn-by-Turn Persistence Feed",
+    voice_persisted_tag: "PERSISTED IMMEDIATELY IN DB",
+    voice_danger_alert: "EMERGENCY SAFETY ALERT DETECTED",
+    voice_safe_contact_note: "Safe Contact Protocol Recorded",
 
     // DBLA Intake & Demo Identity
     dbla_intake_title: "DBLA Online Legal Aid Intake Form",
@@ -206,6 +222,7 @@ const TRANSLATIONS = {
 
     // Navigation
     nav_dashboard: "ড্যাশবোর্ড সারসংক্ষেপ",
+    nav_voice_intake: "ভয়েস হেল্পলাইন (টেলিফোনি)",
     nav_dbla_intake: "ডিবিএলএ অনলাইন আবেদন",
     nav_queue: "লাইভ মামলা সারি",
     nav_lawyer_queue: "প্যানেল আইনজীবী কিউ",
@@ -214,6 +231,21 @@ const TRANSLATIONS = {
     nav_notifications: "বিজ্ঞপ্তিসমূহ",
     nav_settings: "সেটিংস ও ভাষা",
     nav_logout: "লগআউট",
+
+    // Voice Intake Simulator
+    voice_title: "জাতীয় আইনগত সহায়তা ভয়েস ইনটেক হেল্পলাইন",
+    voice_subtitle: "বাংলা কথ্য ইনটেক, জেমিনাই সুরক্ষা বিশ্লেষণ ও প্রতি ধাপে তাৎক্ষণিক ডাটাবেজ সংরক্ষণ।",
+    voice_start_call: "ইনবাউন্ড কল সিমুলেশন শুরু (১৬৪৩০)",
+    voice_end_call: "কল সমাপ্ত করুন",
+    voice_speaking_now: "হেল্পলাইন সিস্টেম কথা বলছে (বাংলা)...",
+    voice_caller_turn: "কলারের উত্তর প্রদানের সময়",
+    voice_btn_speak_mic: "মাইক্রোফোনে কথা বলুন",
+    voice_btn_sample_safe: "নিরাপদ উত্তরের নমুনা পাঠান",
+    voice_btn_sample_danger: "উচ্চ ঝুঁকি/বিপদসূচক উত্তরের নমুনা পাঠান",
+    voice_answers_feed: "লাইভ প্রতি-ধাপের তথ্য সংরক্ষণের প্রমাণ",
+    voice_persisted_tag: "ডাটাবেজে তাৎক্ষণিকভাবে সংরক্ষিত",
+    voice_danger_alert: "জরুরি বিপদ ও সহিংসতার সংকেত সনাক্ত হয়েছে",
+    voice_safe_contact_note: "নিরাপদ যোগাযোগ প্রটোকল সংরক্ষিত",
 
     // DBLA Intake & Demo Identity
     dbla_intake_title: "ডিবিএলএ অনলাইন আইনি সহায়তা আবেদন ফরম",

@@ -228,6 +228,7 @@ async def reject_case(
 
 
 @router.post("/{case_id}/priority", response_model=CaseResponse)
+@router.patch("/{case_id}/priority", response_model=CaseResponse)
 async def change_case_priority(
     case_id: int,
     req: CasePriorityRequest,

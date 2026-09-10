@@ -228,6 +228,35 @@ class ApiClient {
   async getIntakeApplication(applicationId) {
     return this.request(`/intake/applications/${applicationId}`);
   }
+
+  // Voice Helpline Simulation Endpoints (Zero Twilio Cost in Browser Test Mode)
+  async startVoiceSimulation(callerPhone = "+8801711000001", applicantName = "", district = "Dhaka") {
+    return this.request("/voice/simulate/start", {
+      method: "POST",
+      body: JSON.stringify({
+        caller_phone: callerPhone,
+        applicant_name: applicantName || null,
+        district: district || "Dhaka",
+      }),
+    });
+  }
+
+  async submitVoiceStep(sessionId, questionId, spokenAnswer, source = "BROWSER_SIMULATED", confidence = 1.0) {
+    return this.request("/voice/simulate/step", {
+      method: "POST",
+      body: JSON.stringify({
+        session_id: sessionId,
+        question_id: questionId,
+        spoken_answer: spokenAnswer,
+        source: source,
+        confidence: confidence,
+      }),
+    });
+  }
+
+  async getVoiceSession(sessionId) {
+    return this.request(`/voice/simulate/session/${encodeURIComponent(sessionId)}`);
+  }
 }
 
 window.dlasApi = new ApiClient();
