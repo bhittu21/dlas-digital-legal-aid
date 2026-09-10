@@ -35,22 +35,85 @@
     },
   };
 
-  function speakBangla(text) {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "bn-BD";
-    utterance.rate = 0.95;
+  let activeAudio = null;
 
-    // Visual speaking indicator
+  function stopSpeaking() {
+    if (activeAudio) {
+      try {
+        activeAudio.pause();
+        activeAudio.currentTime = 0;
+      } catch (_) {}
+      activeAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (_) {}
+    }
+    const wave = document.getElementById("voiceSoundwave");
+    if (wave) wave.classList.remove("soundwave-active");
+  }
+
+  function fallbackSpeechSynthesis(text, onDone) {
+    if (!('speechSynthesis' in window)) {
+      if (onDone) onDone();
+      return;
+    }
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "bn-BD";
+      utterance.rate = 0.95;
+
+      const voices = window.speechSynthesis.getVoices() || [];
+      const bnVoice = voices.find(v => 
+        (v.lang && v.lang.toLowerCase().startsWith("bn")) || 
+        (v.name && (v.name.toLowerCase().includes("bangla") || v.name.toLowerCase().includes("bengali")))
+      );
+      if (bnVoice) {
+        utterance.voice = bnVoice;
+      }
+
+      utterance.onend = () => { if (onDone) onDone(); };
+      utterance.onerror = () => { if (onDone) onDone(); };
+      window.speechSynthesis.speak(utterance);
+    } catch (_) {
+      if (onDone) onDone();
+    }
+  }
+
+  function speakBangla(text) {
+    if (!text || !text.trim()) return;
+    stopSpeaking();
+
     const wave = document.getElementById("voiceSoundwave");
     if (wave) wave.classList.add("soundwave-active");
 
-    utterance.onend = () => {
+    const onDone = () => {
       if (wave) wave.classList.remove("soundwave-active");
+      activeAudio = null;
     };
 
-    window.speechSynthesis.speak(utterance);
+    // 1. Primary: Native Bangladesh Bangla neural voice audio from backend
+    try {
+      const apiBase = window.DLAS_CONFIG.getApiBaseUrl();
+      const ttsUrl = `${apiBase}/voice/tts?text=${encodeURIComponent(text.trim())}&lang=bn-BD`;
+      const audio = new Audio(ttsUrl);
+      activeAudio = audio;
+
+      audio.onended = onDone;
+      audio.onerror = () => {
+        console.warn("Backend TTS stream unavailable, falling back to browser speech synthesis");
+        fallbackSpeechSynthesis(text, onDone);
+      };
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn("Audio autoplay blocked or unavailable, using browser speech synthesis:", err);
+          fallbackSpeechSynthesis(text, onDone);
+        });
+      }
+    } catch (e) {
+      fallbackSpeechSynthesis(text, onDone);
+    }
   }
 
   async function renderVoiceIntakeView(container, lang) {
@@ -240,7 +303,7 @@
     if (btnEnd) {
       btnEnd.addEventListener("click", () => {
         isCallActive = false;
-        window.speechSynthesis.cancel();
+        stopSpeaking();
         renderVoiceIntakeView(container, lang);
         window.notify("Voice intake call ended.", "info");
       });

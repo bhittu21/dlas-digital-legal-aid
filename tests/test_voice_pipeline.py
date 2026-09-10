@@ -323,7 +323,8 @@ def test_twilio_incoming_webhook_twiml(client: TestClient, db: Session):
     assert "application/xml" in response.headers["content-type"]
     xml_content = response.text
     assert "<Response>" in xml_content
-    assert '<Say language="bn-BD">' in xml_content
+    assert 'voice="Google.bn-BD-Standard-A"' in xml_content
+    assert 'language="bn-BD"' in xml_content
     assert '<Gather input="speech"' in xml_content
     assert "জাতীয় আইনগত সহায়তা হেল্পলাইনে স্বাগতম" in xml_content
     assert "CA1234567890abcdef1234567890abcdef" in xml_content
@@ -359,7 +360,8 @@ def test_twilio_step_speech_gather_callback(client: TestClient, db: Session):
     )
     assert step_resp.status_code == 200
     xml_content = step_resp.text
-    assert '<Say language="bn-BD">' in xml_content
+    assert 'voice="Google.bn-BD-Standard-A"' in xml_content
+    assert 'language="bn-BD"' in xml_content
     assert "আপনার সমস্যাটি সংক্ষেপে বলবেন?" in xml_content
     assert "question_id=Q1" in xml_content
 
