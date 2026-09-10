@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import health, auth, cases, lawyers, notifications, audit, nid, events, intake
+from app.api.v1 import health, auth, cases, lawyers, notifications, audit, nid, events, intake, voice
 
 api_router = APIRouter()
 
@@ -12,5 +12,6 @@ api_router.include_router(audit.router, prefix="/audit-logs", tags=["Audit Trail
 api_router.include_router(nid.router, prefix="/mock-nid", tags=["Demo Identity Adapter"])
 api_router.include_router(events.router, prefix="/events", tags=["Realtime Event Streams"])
 api_router.include_router(intake.router, prefix="/intake", tags=["Legal Aid Intake & DBLA Form"])
+api_router.include_router(voice.router, prefix="/voice", tags=["Voice Pipeline & Telephony"])
 
 

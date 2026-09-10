@@ -94,5 +94,29 @@ class ConnectionManager:
         for dead in dead_connections:
             self.disconnect(dead)
 
+    def broadcast_event_sync(
+        self,
+        event_type: str,
+        payload: Dict[str, Any],
+        actor: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Synchronous wrapper to build envelope, update buffer, and schedule broadcast.
+        """
+        import asyncio
+        envelope = build_event_envelope(event_type, payload, actor)
+        self.latest_seq = envelope["seq"]
+        self.event_buffer.append(envelope)
+
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(self.broadcast_raw(envelope))
+        except Exception:
+            pass
+
+        return envelope
+
 
 manager = ConnectionManager()
+ws_hub = manager
