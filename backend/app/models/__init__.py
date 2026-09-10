@@ -2,6 +2,7 @@ from app.models.user import User, UserRole
 from app.models.case import Case, CaseStatus, CasePriority, LegalCategory
 from app.models.audit import AuditLog, AuditAction
 from app.models.notification import Notification, NotificationType
+from app.models.intake_application import IntakeApplication, ApplicationCompleteness, FieldProvenance
 
 __all__ = [
     "User",
@@ -14,4 +15,7 @@ __all__ = [
     "AuditAction",
     "Notification",
     "NotificationType",
+    "IntakeApplication",
+    "ApplicationCompleteness",
+    "FieldProvenance",
 ]

@@ -121,6 +121,9 @@ function renderDashboardView(container, lang) {
         <button id="btnQuickReview" class="btn btn-warning btn-sm">
           ${lang === "bn" ? "যাচাইকরণ কিউ খুলুন" : "Open Verification Queue"} (${window.formatNumber(metrics.pendingReview, lang)})
         </button>
+        <button id="btnQuickDblaIntake" class="btn btn-emerald btn-sm">
+          ${lang === "bn" ? "ডিবিএলএ আবেদন ও ডেমো প্রোভাইডার" : "DBLA Online Intake & Demo"} ↗
+        </button>
         <button id="btnQuickLawyerDispatch" class="btn btn-primary btn-sm">
           ${lang === "bn" ? "আইনজীবী নিয়োগ তালিকা" : "Assign Panel Lawyers"} (${window.formatNumber(metrics.lawyerQueue, lang)})
         </button>
@@ -228,6 +231,10 @@ function renderDashboardView(container, lang) {
 
   container.querySelector("#btnQuickLawyerDispatch").addEventListener("click", () => {
     window.dlasStore.setView("lawyers");
+  });
+
+  container.querySelector("#btnQuickDblaIntake")?.addEventListener("click", () => {
+    window.dlasStore.setView("dbla_intake");
   });
 
   // Row inspections

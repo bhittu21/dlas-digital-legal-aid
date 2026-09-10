@@ -13,6 +13,7 @@ const TRANSLATIONS = {
 
     // Navigation
     nav_dashboard: "Dashboard Overview",
+    nav_dbla_intake: "DBLA Online Intake",
     nav_queue: "Live Case Queue",
     nav_lawyer_queue: "Panel Lawyer Queue",
     nav_audit: "Audit Trail",
@@ -20,6 +21,24 @@ const TRANSLATIONS = {
     nav_notifications: "Notifications",
     nav_settings: "Settings & Language",
     nav_logout: "Sign Out",
+
+    // DBLA Intake & Demo Identity
+    dbla_intake_title: "DBLA Online Legal Aid Intake Form",
+    dbla_intake_subtitle: "Standard statutory application workflow matching NLASO OnlineApplications.aspx portal",
+    dbla_demo_warning: "DEMO IDENTITY DATA — FOR DEMO & HACKATHON EVALUATION ONLY. Direct lookup of NID from telephone numbers is strictly prohibited under Bangladesh telecommunications privacy laws. This module uses 12 synthetic demo profiles without fabricating public government access.",
+    dbla_demo_lookup_title: "Demo Identity Provider (Mock Registry)",
+    dbla_demo_select_label: "Select Fictional Citizen Phone:",
+    dbla_btn_lookup: "Simulate Caller Profile Lookup",
+    dbla_ai_intake_title: "AI-Assisted Spoken Grievance Intake",
+    dbla_ai_intake_desc: "Simulate caller voice transcript mapped to structured DBLA fields via Gemini extraction",
+    dbla_btn_extract: "Run Gemini Structured Extraction",
+    dbla_completeness_title: "Application Statutory Completeness",
+    dbla_btn_submit_app: "Create Authoritative Case & Register Application",
+    prov_mock: "MOCK_IDENTITY",
+    prov_ai: "AI_EXTRACTED",
+    prov_caller: "CALLER_REPORTED",
+    prov_human: "HUMAN_VERIFIED",
+    prov_sys: "SYSTEM_DERIVED",
 
     // Authentication
     login_title: "Officer & Advocate Sign In",
@@ -186,7 +205,8 @@ const TRANSLATIONS = {
     lang_switch: "English",
 
     // Navigation
-    nav_dashboard: "ড্যাশবোর্ড পর্যালোচনা",
+    nav_dashboard: "ড্যাশবোর্ড সারসংক্ষেপ",
+    nav_dbla_intake: "ডিবিএলএ অনলাইন আবেদন",
     nav_queue: "লাইভ মামলা সারি",
     nav_lawyer_queue: "প্যানেল আইনজীবী কিউ",
     nav_audit: "অডিট ও নিরীক্ষা লগ",
@@ -194,6 +214,24 @@ const TRANSLATIONS = {
     nav_notifications: "বিজ্ঞপ্তিসমূহ",
     nav_settings: "সেটিংস ও ভাষা",
     nav_logout: "লগআউট",
+
+    // DBLA Intake & Demo Identity
+    dbla_intake_title: "ডিবিএলএ অনলাইন আইনি সহায়তা আবেদন ফরম",
+    dbla_intake_subtitle: "জাতীয় আইনগত সহায়তা প্রদান সংস্থা (এনএলএএসও) এর অনলাইন আবেদন কাঠামো অনুযায়ী তৈরি",
+    dbla_demo_warning: "ডেমো পরিচয় তথ্য — শুধুমাত্র হ্যাকাথন প্রদর্শনী ও মূল্যায়নের জন্য। বাংলাদেশ টেলিযোগাযোগ ও ভোটার নিবন্ধন আইনের অধীনে ফোন নম্বর থেকে সরাসরি এনআইডি বের করা আইনত নিষিদ্ধ। সরকারি পাবলিক ইন্টিগ্রেশনের কোনো ভুয়া দাবি ছাড়াই এটি ১২টি কাল্পনিক প্রোফাইলের মাধ্যমে ডেমো প্রবাহ দেখায়।",
+    dbla_demo_lookup_title: "ডেমো আইডেন্টিটি প্রোভাইডার (মক ডাটাবেজ)",
+    dbla_demo_select_label: "কাল্পনিক নাগরিকের ফোন নম্বর বাছাই করুন:",
+    dbla_btn_lookup: "কলার প্রোফাইল অনুসন্ধান করুন (ডেমো)",
+    dbla_ai_intake_title: "এআই-সহায়ক কথিত অভিযোগ প্রক্রিয়াকরণ",
+    dbla_ai_intake_desc: "কলারের মুখের কথ্য বিবরণ জেমিনাই এআই দিয়ে কাঠামোগত ডিবিএলএ ফিল্ডে রূপান্তর করুন",
+    dbla_btn_extract: "জেমিনাই দিয়ে তথ্য বিশ্লেষণ ও নিষ্কাশন",
+    dbla_completeness_title: "আইনি আবেদনের পূর্ণাঙ্গতা সূচক",
+    dbla_btn_submit_app: "মামলা তৈরি করুন ও আবেদনটি দাখিল করুন",
+    prov_mock: "মক পরিচয়",
+    prov_ai: "এআই নিষ্কাশিত",
+    prov_caller: "কলার কর্তৃক প্রদত্ত",
+    prov_human: "কর্মকর্তা যাচাইকৃত",
+    prov_sys: "সিস্টেম নির্ধারিত",
 
     // Authentication
     login_title: "কর্মকর্তা ও আইনজীবী প্রবেশদ্বার",

@@ -195,6 +195,39 @@ class ApiClient {
   async getEventsSince(sinceSeq = 0) {
     return this.request(`/events/since?since_seq=${encodeURIComponent(sinceSeq)}`);
   }
+
+  // DBLA Intake & Demo Identity Provider Endpoints
+  async listDemoIdentities() {
+    return this.request("/intake/demo-identities");
+  }
+
+  async lookupDemoIdentity(phoneNumber) {
+    return this.request(`/intake/demo-lookup?phone_number=${encodeURIComponent(phoneNumber)}`, {
+      method: "POST",
+    });
+  }
+
+  async extractAiIntake(rawTranscript, callerPhone = null, existingAppId = null) {
+    return this.request("/intake/extract-ai", {
+      method: "POST",
+      body: JSON.stringify({
+        raw_transcript: rawTranscript,
+        caller_phone: callerPhone,
+        existing_application_id: existingAppId,
+      }),
+    });
+  }
+
+  async createIntakeApplication(applicationData) {
+    return this.request("/intake/applications", {
+      method: "POST",
+      body: JSON.stringify(applicationData),
+    });
+  }
+
+  async getIntakeApplication(applicationId) {
+    return this.request(`/intake/applications/${applicationId}`);
+  }
 }
 
 window.dlasApi = new ApiClient();

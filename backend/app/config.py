@@ -46,6 +46,7 @@ class Settings(BaseSettings):
 
     # Mock NID Adapter (Demo mode - zero fictional government claims)
     NID_SERVICE_MODE: str = "mock"
+    IDENTITY_PROVIDER: str = "mock"  # mock or authorised
 
     @property
     def cors_origin_list(self) -> List[str]:
