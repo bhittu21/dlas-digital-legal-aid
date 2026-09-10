@@ -298,6 +298,19 @@ class CaseWorkflowService:
             commit=True,
         )
 
+        # Primary Case State Transition Event Broadcast
+        await manager.broadcast_event(
+            event_type=RealtimeEventType.CASE_VERIFIED,
+            payload={
+                "case_id": case.id,
+                "tracking_id": case.tracking_id,
+                "status": case.status,
+                "verified_by": actor.full_name,
+                "verification_notes": req.notes,
+            },
+            actor={"user_id": actor.id, "name": actor.full_name, "role": actor.role},
+        )
+
         # Notify panel lawyer when case enters panel lawyer queue
         if target_status == CaseStatus.PANEL_LAWYER_QUEUE:
             lawyer = db.query(User).filter(User.role == UserRole.PANEL_LAWYER).first()
@@ -327,17 +340,6 @@ class CaseWorkflowService:
                         },
                     )
 
-        await manager.broadcast_event(
-            event_type=RealtimeEventType.CASE_VERIFIED,
-            payload={
-                "case_id": case.id,
-                "tracking_id": case.tracking_id,
-                "status": case.status,
-                "verified_by": actor.full_name,
-                "verification_notes": req.notes,
-            },
-            actor={"user_id": actor.id, "name": actor.full_name, "role": actor.role},
-        )
         return case
 
     @staticmethod
