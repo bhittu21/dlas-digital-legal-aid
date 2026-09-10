@@ -280,7 +280,7 @@ class CaseWorkflowService:
         )
 
         await manager.broadcast_event(
-            event_type=RealtimeEventType.CASE_STATUS_CHANGED,
+            event_type=RealtimeEventType.CASE_VERIFIED,
             payload={
                 "case_id": case.id,
                 "tracking_id": case.tracking_id,
@@ -342,8 +342,8 @@ class CaseWorkflowService:
         )
 
         await manager.broadcast_event(
-            event_type=RealtimeEventType.CASE_STATUS_CHANGED,
-            payload={"case_id": case.id, "tracking_id": case.tracking_id, "status": case.status},
+            event_type=RealtimeEventType.CASE_RETURNED,
+            payload={"case_id": case.id, "tracking_id": case.tracking_id, "status": case.status, "notes": req.info_needed},
             actor={"user_id": actor.id, "name": actor.full_name, "role": actor.role},
         )
         return case
@@ -535,15 +535,25 @@ class CaseWorkflowService:
             commit=True,
         )
 
-        # Realtime broadcast
+        # Realtime broadcast: CASE_ASSIGNED and LAWYER_NOTIFICATION_CREATED
         await manager.broadcast_event(
-            event_type=RealtimeEventType.LAWYER_ASSIGNED,
+            event_type=RealtimeEventType.CASE_ASSIGNED,
             payload={
                 "case_id": case.id,
                 "tracking_id": case.tracking_id,
                 "assigned_lawyer_id": lawyer.id,
                 "assigned_lawyer_name": lawyer.full_name,
                 "status": case.status,
+            },
+            actor={"user_id": actor.id, "name": actor.full_name, "role": actor.role},
+        )
+        await manager.broadcast_event(
+            event_type=RealtimeEventType.LAWYER_NOTIFICATION_CREATED,
+            payload={
+                "user_id": lawyer.id,
+                "case_id": case.id,
+                "tracking_id": case.tracking_id,
+                "title": f"New Legal Aid Matter Assigned: {case.tracking_id}",
             },
             actor={"user_id": actor.id, "name": actor.full_name, "role": actor.role},
         )

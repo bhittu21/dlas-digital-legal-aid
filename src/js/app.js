@@ -266,13 +266,13 @@ function updateWsStatusIndicator(status) {
 
   if (status === "connected") {
     dot.className = "live-dot dot-connected";
-    text.textContent = lang === "bn" ? "লাইভ" : "Live";
+    text.textContent = lang === "bn" ? "লাইভ" : "LIVE";
   } else if (status === "reconnecting") {
     dot.className = "live-dot dot-reconnecting";
-    text.textContent = lang === "bn" ? "পুনঃসংযোগ..." : "Reconnecting...";
+    text.textContent = lang === "bn" ? "পুনঃসংযোগ..." : "RECONNECTING";
   } else {
     dot.className = "live-dot dot-disconnected";
-    text.textContent = lang === "bn" ? "বিচ্ছিন্ন" : "Offline";
+    text.textContent = lang === "bn" ? "বিচ্ছিন্ন" : "OFFLINE";
   }
 }
 

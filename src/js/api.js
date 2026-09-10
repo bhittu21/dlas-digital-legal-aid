@@ -190,6 +190,11 @@ class ApiClient {
       }),
     });
   }
+
+  // Missed-event Recovery Endpoint
+  async getEventsSince(sinceSeq = 0) {
+    return this.request(`/events/since?since_seq=${encodeURIComponent(sinceSeq)}`);
+  }
 }
 
 window.dlasApi = new ApiClient();

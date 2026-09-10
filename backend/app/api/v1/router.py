@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import health, auth, cases, lawyers, notifications, audit, nid
+from app.api.v1 import health, auth, cases, lawyers, notifications, audit, nid, events
 
 api_router = APIRouter()
 
@@ -10,3 +10,5 @@ api_router.include_router(lawyers.router, prefix="/lawyers", tags=["Panel Lawyer
 api_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 api_router.include_router(audit.router, prefix="/audit-logs", tags=["Audit Trails"])
 api_router.include_router(nid.router, prefix="/mock-nid", tags=["Demo Identity Adapter"])
+api_router.include_router(events.router, prefix="/events", tags=["Realtime Event Streams"])
+

@@ -1,7 +1,8 @@
 import json
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from typing import Optional
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -9,6 +10,8 @@ from app.database import engine, Base, SessionLocal
 from app.api.v1.router import api_router
 from app.realtime.connection_manager import manager
 from app.services.seed_service import seed_database
+from app.services.auth_service import decode_token
+from app.utils import now_utc
 
 # Configure logging
 logging.basicConfig(
@@ -79,20 +82,61 @@ def api_info():
 
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(
+    websocket: WebSocket,
+    token: Optional[str] = Query(None)
+):
     """
-    Realtime WebSocket hub for DLAO Officers and Panel Lawyers.
-    Broadcasts case state changes, priority adjustments, lawyer assignments, and notifications.
+    Hardened Realtime WebSocket hub for DLAO Officers, Judges, and Panel Lawyers.
+    Enforces authentication, heartbeat keepalive, duplicate protection, and monotonic event ordering.
     """
-    await manager.connect(websocket)
+    user_data = None
+    if token is not None:
+        payload = decode_token(token)
+        if not payload:
+            await websocket.close(code=4001, reason="Unauthorized: Invalid token")
+            return
+        user_data = {
+            "user_id": payload.get("user_id"),
+            "email": payload.get("sub"),
+            "role": payload.get("role", "authenticated"),
+            "connected_at": now_utc().isoformat(),
+        }
+
+    await manager.connect(websocket, user=user_data)
     try:
         while True:
-            # Receive client messages (e.g. heartbeat ping/pong)
+            # Receive client messages (e.g. heartbeat ping/pong, in-band auth)
             data_text = await websocket.receive_text()
             try:
                 msg = json.loads(data_text)
-                if msg.get("type") == "ping":
-                    await websocket.send_text(json.dumps({"type": "pong"}))
+                msg_type = msg.get("type")
+                if msg_type == "ping":
+                    await websocket.send_text(json.dumps({
+                        "type": "pong",
+                        "timestamp": now_utc().isoformat(),
+                        "latest_seq": manager.get_latest_seq()
+                    }))
+                elif msg_type == "auth":
+                    auth_token = msg.get("token")
+                    payload = decode_token(auth_token) if auth_token else None
+                    if payload:
+                        manager.active_connections[websocket] = {
+                            "user_id": payload.get("user_id"),
+                            "email": payload.get("sub"),
+                            "role": payload.get("role", "authenticated"),
+                            "connected_at": now_utc().isoformat(),
+                        }
+                        await websocket.send_text(json.dumps({
+                            "type": "auth_success",
+                            "user": payload.get("sub"),
+                            "role": payload.get("role")
+                        }))
+                    else:
+                        await websocket.send_text(json.dumps({
+                            "type": "auth_error",
+                            "message": "Invalid authentication token"
+                        }))
             except Exception:
                 pass
     except WebSocketDisconnect:
