@@ -1,5 +1,4 @@
-import datetime
-from typing import Any, Dict, Optional
+from app.utils import now_utc
 
 
 class RealtimeEventType:
@@ -23,7 +22,7 @@ def build_event_envelope(
     """
     return {
         "event": event_type,
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "timestamp": now_utc().isoformat(),
         "actor": actor or {"user_id": None, "name": "System", "role": "system"},
         "payload": payload,
     }
