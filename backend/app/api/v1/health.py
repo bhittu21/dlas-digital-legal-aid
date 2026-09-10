@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 from app.database import get_db
 from app.config import settings
+from app.utils import now_utc
 
 router = APIRouter()
 
@@ -26,5 +27,5 @@ def check_health(db: Session = Depends(get_db)):
         "project": settings.PROJECT_NAME,
         "environment": settings.ENVIRONMENT,
         "database": db_status,
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "timestamp": now_utc().isoformat(),
     }
